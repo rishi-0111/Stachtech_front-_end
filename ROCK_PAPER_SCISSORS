@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rock Paper Scissors</title>
+  <style>
+    :root {
+      --font-headline: 'Poppins', sans-serif;
+      --color-bg: #0e2a47;
+      --color-text-primary: #c7d2fe;
+      --color-text-secondary: #a5b4fc;
+      --color-shadow: rgba(0, 0, 0, 0.15);
+      --btn-bg: #3b82f6;
+      --btn-text: #ffffff;
+      --btn-glow-color: #7dd3fc;
+      --btn-bg-hover: #60a5fa;
+      --radius: 0.75rem;
+      --transition: 0.3s ease;
+    }
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: var(--color-bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--color-text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .container {
+      max-width: 420px;
+      width: 100%;
+      background-color: #1e3a8a;
+      box-shadow: 0 12px 24px var(--color-shadow);
+      border-radius: var(--radius);
+      padding: 2.5rem 2rem 3rem;
+      text-align: center;
+    }
+
+    h1#result {
+      font-family: var(--font-headline);
+      font-weight: 700;
+      font-size: 2.75rem;
+      color: var(--color-text-primary);
+      margin: 0 0 2rem;
+      min-height: 3.5rem;
+      user-select: none;
+    }
+
+    @keyframes celebration-glow {
+      0%, 100% {
+        text-shadow: 0 0 6px #a5b4fc, 0 0 12px #6366f1, 0 0 18px #818cf8;
+        transform: scale(1);
+      }
+      50% {
+        text-shadow: 0 0 12px #a5b4fc, 0 0 20px #6366f1, 0 0 28px #818cf8;
+        transform: scale(1.1);
+      }
+    }
+    .celebrate {
+      animation: celebration-glow 1.2s ease-in-out 3 alternate;
+    }
+
+    .vs {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .vs-text {
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+
+    .emoji {
+      font-size: 5.5rem;
+      user-select: none;
+    }
+
+    .stats {
+      display: flex;
+      justify-content: space-around;
+      font-size: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stats p {
+      margin: 0;
+      font-weight: 600;
+    }
+    .stats span {
+      color: var(--btn-bg);
+      font-weight: 700;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .buttons button {
+      background-color: var(--btn-bg);
+      border: none;
+      color: var(--btn-text);
+      font-weight: 700;
+      font-size: 1rem;
+      padding: 0.8rem 1.4rem;
+      border-radius: var(--radius);
+      box-shadow: 0 0 8px var(--btn-glow-color), inset 0 0 10px var(--btn-glow-color);
+      cursor: pointer;
+      transition: background-color var(--transition), transform 0.2s ease;
+      min-width: 100px;
+      animation: bubble 3s ease-in-out infinite;
+    }
+
+    .buttons button:hover {
+      background-color: var(--btn-bg-hover);
+      box-shadow: 0 0 20px var(--btn-glow-color), inset 0 0 25px var(--btn-glow-color);
+      transform: scale(1.1);
+      animation-play-state: paused;
+    }
+
+    @keyframes bubble {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.05);
+      }
+    }
+
+    @keyframes shake {
+      0%   { transform: rotate(0deg); }
+      10%  { transform: rotate(15deg); }
+      20%  { transform: rotate(-15deg); }
+      30%  { transform: rotate(15deg); }
+      40%  { transform: rotate(-15deg); }
+      50%  { transform: rotate(10deg); }
+      60%  { transform: rotate(-10deg); }
+      70%  { transform: rotate(5deg); }
+      80%  { transform: rotate(-5deg); }
+      90%  { transform: rotate(2deg); }
+      100% { transform: rotate(0deg); }
+    }
+    .shake {
+      animation: shake 0.75s ease-in-out;
+    }
+
+    #confetti-container {
+      pointer-events: none;
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+
+    .confetti {
+      position: absolute;
+      opacity: 0.9;
+      transform-origin: center;
+      animation-fill-mode: forwards;
+      animation-iteration-count: 1;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translate3d(var(--x-start, 0px), 0, 0) rotateZ(0deg) rotateY(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translate3d(calc(var(--x-start, 0px) + var(--x-osc, 50px)), 100vh, 0) rotateZ(360deg) rotateY(720deg);
+        opacity: 0;
+      }
+    }
+
+    .confetti.paper {
+      background-color: red;
+      width: 8px;
+      height: 14px;
+      animation-name: confetti-fall;
+      animation-timing-function: linear;
+    }
+
+    .confetti.chocolate {
+      width: 10px;
+      height: 10px;
+      border-radius: 4px;
+      background: linear-gradient(135deg, #7B3F00 0%, #4E2600 100%);
+      animation-name: confetti-fall;
+      animation-timing-function: linear;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1 id="result">Play Rock-Paper-Scissors!</h1>
+
+    <div class="vs">
+      <span id="user-choice" class="emoji">❓</span>
+      <span class="vs-text">VS</span>
+      <span id="computer-choice" class="emoji">❓</span>
+    </div>
+
+    <div class="stats">
+      <p>Won: <span id="won">0</span></p>
+      <p>Draw: <span id="draw">0</span></p>
+      <p>Lost: <span id="lost">0</span></p>
+    </div>
+
+    <div class="buttons">
+      <button onclick="play('rock')">Rock ✊</button>
+      <button onclick="play('paper')">Paper 🤚</button>
+      <button onclick="play('scissors')">Scissors ✌</button>
+    </div>
+  </main>
+
+  <div id="confetti-container"></div>
+
+  <script>
+    const userChoiceEl = document.getElementById('user-choice');
+    const computerChoiceEl = document.getElementById('computer-choice');
+    const resultEl = document.getElementById('result');
+    const wonEl = document.getElementById('won');
+    const lostEl = document.getElementById('lost');
+    const drawEl = document.getElementById('draw');
+    const confettiContainer = document.getElementById('confetti-container');
+
+    function getEmoji(choice) {
+      switch (choice) {
+        case 'rock': return '✊';
+        case 'paper': return '🤚';
+        case 'scissors': return '✌';
+        default: return '❓';
+      }
+    }
+
+    function determineWinner(user, computer) {
+      if (user === computer) return { winner: 'draw', message: "It's a draw!" };
+      if (
+        (user === 'rock' && computer === 'scissors') ||
+        (user === 'paper' && computer === 'rock') ||
+        (user === 'scissors' && computer === 'paper')
+      ) {
+        return { winner: 'user', message: "You win!" };
+      }
+      return { winner: 'computer', message: "You lose!" };
+    }
+
+    function updateStats(winner) {
+      if (winner === 'user') wonEl.textContent = parseInt(wonEl.textContent) + 1;
+      else if (winner === 'computer') lostEl.textContent = parseInt(lostEl.textContent) + 1;
+      else drawEl.textContent = parseInt(drawEl.textContent) + 1;
+    }
+
+    function resetCelebration() {
+      resultEl.classList.remove('celebrate');
+      confettiContainer.innerHTML = '';
+    }
+
+    function createConfettiPiece() {
+      const confetti = document.createElement('div');
+      confetti.classList.add('confetti');
+      const isChocolate = Math.random() < 0.25;
+
+      if (isChocolate) {
+        confetti.classList.add('chocolate');
+      } else {
+        confetti.classList.add('paper');
+        const colors = ['#ef4444', '#f97316', '#facc15', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899'];
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      }
+
+      const left = Math.random() * window.innerWidth;
+      confetti.style.left = `${left}px`;
+
+      const xOsc = (Math.random() * 100) - 50;
+      confetti.style.setProperty('--x-start', `${left}px`);
+      confetti.style.setProperty('--x-osc', `${xOsc}px`);
+
+      const duration = 3.5 + Math.random() * 2;
+      confetti.style.animationDuration = `${duration}s`;
+      confetti.style.animationDelay = `${Math.random() * 1.5}s`;
+      confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+
+      return confetti;
+    }
+
+    function launchConfetti() {
+      const count = 120;
+      for (let i = 0; i < count; i++) {
+        const confetti = createConfettiPiece();
+        confettiContainer.appendChild(confetti);
+        confetti.addEventListener('animationend', () => confetti.remove());
+      }
+    }
+
+    function play(userChoice) {
+      resetCelebration();
+      resultEl.textContent = "Rock... Paper... Scissors...";
+      userChoiceEl.textContent = '✊';
+      computerChoiceEl.textContent = '✊';
+
+      userChoiceEl.classList.add('shake');
+      computerChoiceEl.classList.add('shake');
+
+      const choices = ['rock', 'paper', 'scissors'];
+      const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+
+      setTimeout(() => {
+        userChoiceEl.classList.remove('shake');
+        computerChoiceEl.classList.remove('shake');
+
+        userChoiceEl.textContent = getEmoji(userChoice);
+        computerChoiceEl.textContent = getEmoji(computerChoice);
+
+        const result = determineWinner(userChoice, computerChoice);
+        resultEl.textContent = result.message;
+        updateStats(result.winner);
+
+        if (result.winner === 'user') {
+          resultEl.classList.add('celebrate');
+          launchConfetti();
+        }
+      }, 750);
+    }
+  </script>
+</body>
+</html>
